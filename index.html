@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Monopoly</title>
+    <style>
+      body {
+      font-family: Arial;
+      font-size: 15px;
+      }
+      p {
+        margin: 0px 0px;
+      }
+      h1 {
+        margin: 0 0;
+      }
+      .main-screen {
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        align-items: center;
+      }
+      .game-area {
+        display: flex;
+        flex-direction: row;
+        column-gap: 20px;
+        width: 100%;
+      }
+      .players-status {
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        height: 600px;
+        width: 150px;
+      }
+      .player1-status,
+      .player2-status,
+      .player3-status,
+      .player4-status {
+        height: 25%;
+      }
+      .game-board-image {
+        width: 600px;
+      }
+
+      .game-board {
+        margin-left: 0;
+        position: relative;
+      }
+      .player1,
+      .player2,
+      .player3,
+      .player4 {
+        position: absolute;
+        width: 60px;
+        top: 545px;
+        left: 530px;
+        transition: all 0.2s ease-in-out;
+      }
+      
+      .display-area {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        height: 600px;
+        
+      }
+
+      .info-page {
+        width: 100%;
+        background-color: lightblue;
+        flex: 3;
+        text-align: center;
+      }
+
+      .landing-place {
+        padding-top: 20px;
+        height: 15%;
+      }
+      .square-info {
+        display: flex;
+        flex-direction: column;
+        height: 60%;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .instruction {
+        margin-bottom: 10px;
+      }
+      .button-area {
+        padding-bottom: 10px;
+        height: 20%;
+      }
+
+      .rolling-pane {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .roll-button1 {
+        margin-top: 10px;
+      }
+      .dice-container {
+        display: inline-block;
+        width: 130px;
+        height: 130px;
+        overflow: hidden;
+      }
+      .white-die {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+      .dark-die {
+        width: 100px;
+        height: 100px;
+        animation: transform 0.1s;
+        margin-bottom: 11px;
+      }
+      .rolling {
+        animation: shake 0.5s infinite;
+      }
+      @keyframes shake {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(10deg); }
+        50% { transform: rotate(0deg); }
+        75% { transform: rotate(-10deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .test-button {
+        margin-left: 50px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-screen">
+      <div>
+        <h1 class="title-text">Monopoly</h1>
+      </div>
+      <div class="game-area">
+        <div class="players-status">
+          <div class="player1-status">
+            <p>Player 1</p>
+            <p class="balance1"></p>
+            <p class="player1-properties"></p>
+          </div>
+          <div class="player2-status">
+            <p>Player 2</p>
+            <p class="balance2"></p>
+            <p class="player2-properties"></p>
+          </div>
+          <div class="player3-status">
+            <p>Player 3</p>
+            <p class="balance3"></p>
+            <p class="player3-properties"></p>
+          </div>
+          <div class="player4-status">
+            <p>Player 4</p>
+            <p class="balance4"></p>
+            <p class="player4-properties"></p>
+          </div>
+        </div>
+        <div class="game-board">
+          <img src="images/game-board.jpg" class="game-board-image">
+          <img src="images/tokens/token1.png" class="player1">
+          <img src="images/tokens/token2.png" class="player2">
+          <img src="images/tokens/token3.png" class="player3">
+          <img src="images/tokens/token4.png" class="player4">
+        </div>
+
+        <div class="display-area">
+          <div class="info-page">
+            <div class="landing-place">
+              <h1 class="landing-place-text">Testing</h1>
+            </div>
+            <div class="square-info">
+              <h1 class="instruction">Testing</h1>
+              <h1 class="cost">Testing</h1>
+            </div>
+            <div class="button-area">
+            </div>
+          </div>
+          <div class="rolling-pane">
+            <div>
+              <div class="dice-container">
+                <img class="white-die" src="">
+              </div>
+              <img class="dark-die" src="">
+            </div>
+            <div class="roll-button1">
+              <button class="roll-button">
+                Roll
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="properties-data.js"></script>
+    <script>
+      //unique dollar sign
+      const dollarSign = '\u20A9';
+      //Getting elements for later
+      const whiteDieElement = document.querySelector('.white-die');
+      const darkDieElement = document.querySelector('.dark-die');
+      const buttonElement = document.querySelector('.roll-button');
+      const balance1Element = document.querySelector('.balance1');
+      const balance2Element = document.querySelector('.balance2');
+      const balance3Element = document.querySelector('.balance3');
+      const balance4Element = document.querySelector('.balance4');
+      const player1PropertiesElement = document.querySelector('.player1-properties');
+      const player2PropertiesElement = document.querySelector('.player2-properties');
+      const player3PropertiesElement = document.querySelector('.player3-properties');
+      const player4PropertiesElement = document.querySelector('.player4-properties');
+
+
+      const infoPageElement = document.querySelector('.info-page');
+      const rollingPaneElement= document.querySelector('rolling-pane');
+      const rollButtonElement = document.querySelector('.roll-button1');
+      const instructionElement = document.querySelector('.instruction');
+      const costElement = document.querySelector('.cost');
+      const landingPlaceElement = document.querySelector('.landing-place');
+      const landingPlaceTextElement = document.querySelector('.landing-place-text');
+      const buttonAreaElement = document.querySelector('.button-area');
+
+      
+      //Set event listeners
+      whiteDieElement.classList.add('hidden');
+      darkDieElement.classList.add('hidden');
+      buttonElement.addEventListener('click', () => {
+        whiteDieElement.classList.remove('hidden');
+        darkDieElement.classList.remove('hidden');
+        //rollButtonElement.classList.add('hidden');
+        instructionElement.textContent = 'Rolling dice...';
+        rollDie();
+      });
+
+
+      const playerAmount = 4;
+      let tokens = [
+      ];
+      for (let i = 0; i < playerAmount; i++) {
+        tokens.push(
+          {
+            id: `Player ${i + 1}`,
+            className: `player${i + 1}`,
+            money: 1500,
+            ownedProperty: [],
+            isInJail: false,
+            turnsInJail: 0,
+            position: 0,
+          }
+        );
+      }
+      //This function is crucial for chronilogical order of functions
+      const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      //Roll dice
+      let turn = 0;
+      let doubleAmount = 0;
+      async function rollDie(){
+        const selectedToken = tokens[turn];
+        let move = 0;
+        const [dice1, dice2] = await diceAnimation();
+        move = dice1 + dice2;
+        if (!selectedToken.isInJail){
+          if (dice1 == dice2) {
+            doubleAmount++;
+            if (doubleAmount == 3){
+              costElement.textContent = 'You rolled 3 doubles? Go to Jail!!!'
+              goToJail(selectedToken);
+              proceedTurn();
+            } else {
+              costElement.textContent = `Bravo! You'll have an extra turn!`;
+              await advanceToken(selectedToken, move);
+            }
+          }
+          if (dice1 !== dice2) {
+            costElement.textContent = '';
+            await advanceToken(selectedToken, move);
+            proceedTurn();
+          }
+        } else {
+          if (selectedToken.turnsInJail < 2) {
+            if (dice1 == dice2) {
+              setFree(selectedToken);
+              await advanceToken(selectedToken, move);
+              proceedTurn();
+            } else {
+              selectedToken.turnsInJail++;
+              proceedTurn();
+            }
+          } else {
+            setFree(selectedToken);
+            await advanceToken(selectedToken, move);
+            proceedTurn();
+          }
+        }
+        updateUI();
+      }
+      function diceAnimation(){
+        return new Promise(async (resolve) => {
+          let timer = 0;
+          whiteDieElement.classList.add('rolling');
+          darkDieElement.classList.add('rolling');
+          for (let i = 0; i < 10; i++){
+            setTimeout(() => {
+              whiteDieElement.src = whiteDie[getRandomInt(0,5)];
+              darkDieElement.src = darkDie[getRandomInt(0,5)];
+            }, timer);
+            timer += 100;
+          }
+          let whiteFinalFace = getRandomInt(0,5);
+          let darkFinalFace = getRandomInt(0,5);
+          setTimeout(() => {
+            whiteDieElement.src = whiteDie[whiteFinalFace];
+            darkDieElement.src = darkDie[darkFinalFace];
+            whiteDieElement.classList.remove('rolling');
+            darkDieElement.classList.remove('rolling');
+            instructionElement.textContent = `You rolled a ${whiteFinalFace + darkFinalFace + 2}`;
+            resolve([whiteFinalFace + 1, darkFinalFace + 1]);
+          }, timer);
+        });
+      }
+      //Advancing the token (need async because of sleep)
+      async function advanceToken(token, move){
+        const element = document.querySelector(`.${token.className}`);
+        for (let i = 1; i <= move; i++) {
+          token.position = (token.position + 1) % 40;
+          if (token.position == 0) {
+            token.money += 200;
+            updateUI();
+          }
+          const { coordinate } = propertiesData[token.position];
+          element.style.top = coordinate.top;
+          element.style.left = coordinate.left;
+          await sleep(300);
+        }
+        loadInfo(token);
+      }
+      //token immediately goes to jail when called
+      function goToJail(token) {
+        token.isInJail = true;
+        const element = document.querySelector(`.${token.className}`);
+        const {top, left} = propertiesData[10].coordinate;
+        element.style.top = top;
+        element.style.left = left;
+        token.position = 10;
+      }
+      //Other functions
+      function getRandomInt(min, max){
+        const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+        return randomNum;
+      }
+      function setFree(token) {
+        token.isInJail = false;
+        token.turnsInJail = 0;
+      }
+      function proceedTurn() {
+        doubleAmount = 0;
+        turn = (turn + 1) % 4;
+      }
+      
+      function loadInfo(token){
+        const position = token.position;
+        const property = propertiesData[position];
+        landingPlaceTextElement.innerHTML = `${token.id} landed on: ${property.id}`;
+        const isProperty = checkProperty(property);
+        if (isProperty) {
+          //Purchase/Auction info when property is unowned
+          if (property.owner === null) {
+            //load the info part
+            instructionElement.textContent = 'Unowned';
+            costElement.textContent = `Cost: ${dollarSign}${property.cost}`;
+
+            //load the button part
+            buttonAreaElement.innerHTML = `
+                <button class="purchase-button">Purchase</button>
+                <button class="auction-button">Auction</button>
+            `;
+            const purchaseButtonElement = document.querySelector('.purchase-button');
+            purchaseButtonElement.addEventListener('click', () => {
+              property.owner = token.id;
+              token.money -= property.cost;
+              token.ownedProperty.push(` ${property.id}`);
+              buttonAreaElement.innerHTML = '';
+              instructionElement.textContent = 'Purchase done';
+              nextTurn(token);
+              rollButtonElement.classList.remove('hidden');
+              
+              evaluateSet(property);
+
+              updateUI();
+            });
+            //When the owner lands on his property
+          } else if (property.owner == token.id) {
+            instructionElement.textContent = `This is Your Property`;
+            //When someone else lands on other's peoperty and needs to pay rent
+          } else {
+            instructionElement.textContent = `You landed on ${property.owner}'s property`;
+            //The case where this is a street/railroad
+            if (!utility.includes(property)){
+              const rent = evaluateRent(property);
+              costElement.textContent = `Rent: ${rent}`;
+              generatePayButton(property.owner, token, rent);
+              //The case where this is utility
+            } else {
+              costElement.textContent = 'Roll dice to pay rent';
+              const multiplier = evaluateRent(property);
+                buttonAreaElement.innerHTML = `
+                <button class="utilityRoll1">Roll for Rent</button>
+              `;
+              const buttonElement = document.querySelector('.utilityRoll1');
+              buttonElement.addEventListener('click', async () => {
+                const [d1, d2] = await diceAnimation();
+                rent = (d1 + d2) * multiplier;
+                costElement.textContent = `Rent: ${rent}`;
+                generatePayButton(property.owner, token, rent);
+              });
+            }
+          }
+        } else if (position == 4) {
+          instructionElement.textContent = `Pay the bank ${dollarSign}200!`;
+          costElement.textContent = '';
+          generatePayBankButton(token, 200);
+        } else if (position == 10) {
+          if (!token.isInJail) {
+            instructionElement.textContent = 'You\'re good! Just Visiting.';
+            generateContinueButton(token);
+          }
+        } else if (position == 20) {
+          instructionElement.textContent = 'Here goes nothing!';
+          generateContinueButton(token);
+        } else if (position == 30) {
+          instructionElement.textContent = 'Go to Jail!';
+          costElement.textContent = '';
+          goToJail(token);
+        } else if (position == 38) {
+          instructionElement.textContent = `Pay the bank ${dollarSign}100!`;
+          costElement.textContent = '';
+          generatePayBankButton(token, 100);
+        }
+      }
+      //Check if a square is a property (not special squares)
+      function checkProperty(property) {
+        let isBuyable = false;
+        for(let i = 0; i < properties.length; i++) {
+          for (let m = 0; m < properties[i].length; m++) {
+            if (properties[i][m] == property) {
+              isBuyable = true;
+            } else {
+              continue;
+            }
+          }
+        }
+        return isBuyable;
+      }
+      //Check if streets/utilities are completed in the color set
+      function evaluateSet(property) {
+        //Get the color (or railroads/ uitilities) set
+        let colorSet;
+        properties.forEach((set) => {
+          if (set.includes(property)) {
+            colorSet = set;
+          }
+        });
+        if (colorSet[0].owner === null) return false;
+        for (let i = 0; i < colorSet.length; i++) {
+          if (i !== colorSet.length-1) {
+            if (colorSet[i].owner !== colorSet[i + 1].owner) {
+              return false;
+            }
+          } else if (colorSet[i].owner !== colorSet[0].owner) {
+            return false;
+          } else {
+            colorSet.forEach((obj) => {
+              obj.setComplete = true;
+            });
+            return true;
+          }
+        }
+      }
+      //Evaluate the rent according to monopoly's official info;
+      function evaluateRent(property) {
+        let rent = 0;
+        //Calculate rent for normal streets (exluding railroads and utility)
+        if (!(railroads.includes(property) || utility.includes(property))) {
+          let totalHouse = property.houseBuilt;
+          if (totalHouse == 0) {
+            rent = evaluateSet(property) ? property.rent[1] : property.rent[0]
+          } else {
+            rent = property.rent[totalHouse + 1]; 
+          }
+          return rent;
+        } else if (railroads.includes(property)) {
+          const { owner } = property;
+          let totalRailroads = 0;
+          railroads.forEach((object) => {
+            if (object.owner == owner) {
+              totalRailroads++;
+            }
+          });
+          rent = property.rent[totalRailroads - 1];
+          return rent;
+        } else {
+          const { owner } = property;
+          let totalUtilities = 0;
+          utility.forEach((object) => {
+            if (object.owner == owner) {
+              totalUtilities++;
+            }
+          });
+          let multiplier;
+          if (totalUtilities == 1) {
+            multiplier = 4;
+          } else {
+            multiplier = 10;
+          }
+          return multiplier;
+        }
+      }
+
+      function generatePayButton(ownerId, payer, rent){
+        buttonAreaElement.innerHTML = `
+          <button class="payButton">Pay</button>
+        `;
+        const element = document.querySelector('.payButton');
+        element.addEventListener('click', () => {
+          const ownerInfo = tokens.find((info) => info.id === ownerId);
+          ownerInfo.money += rent;
+          payer.money -= rent;
+          nextTurn(payer);
+          buttonAreaElement.innerHTML = '';
+          //rollButtonElement.classList.remove('hidden');
+          updateUI();
+        });
+      }
+
+      function generatePayBankButton(payer, money){
+        buttonAreaElement.innerHTML = `
+          <button class="payBankButton">Pay</button>
+        `;
+        const element = document.querySelector('.payBankButton');
+        element.addEventListener('click', () => {
+          payer.money -= money;
+          buttonAreaElement.innerHTML = '';
+          nextTurn(payer);
+          //rollButtonElement.classList.remove('hidden');
+          updateUI();
+        });
+      }
+
+      function generateContinueButton(token){
+        buttonAreaElement.innerHTML = `
+          <button class="continue-button">Continue</button>
+        `;
+        const element = document.querySelector('.continue-button');
+        element.addEventListener('click', () => {
+          //rollButtonElement.classList.remove('hidden');
+          nextTurn(token);
+          buttonAreaElement.innerHTML = '';
+        });
+      }
+
+      function nextTurn(token) {
+        const playerNum = tokens.indexOf(token) + 1;
+        let nextPlayer = (playerNum === 4) ? 1 : playerNum + 1;
+        costElement.textContent = `It's your turn, Player ${nextPlayer}`;
+      }
+      function updateUI(){
+        balance1Element.innerHTML = `Balance: ${tokens[0].money}`;
+        balance2Element.innerHTML = `Balance: ${tokens[1].money}`;
+        balance3Element.innerHTML = `Balance: ${tokens[2].money}`;
+        balance4Element.innerHTML = `Balance: ${tokens[3].money}`;
+
+        player1PropertiesElement.textContent = `Owned Properties: ${tokens[0].ownedProperty}`;
+        player2PropertiesElement.textContent = `Owned Properties: ${tokens[1].ownedProperty}`;
+        player3PropertiesElement.textContent = `Owned Properties: ${tokens[2].ownedProperty}`;
+        player4PropertiesElement.textContent = `Owned Properties: ${tokens[3].ownedProperty}`;
+      }
+      updateUI();
+    </script>
+  </body>
+</html>
+
+
